@@ -166,6 +166,10 @@ In order to remove all leftovers you have to edit */etc/pve/vzdump.cron* and rem
 
 Kamil Trzciński, 2013-2018
 
+## You find it valuable?
+
+[Buy me a Beer](https://www.paypal.me/ayufanpl)
+
 ## License
 
 MIT
