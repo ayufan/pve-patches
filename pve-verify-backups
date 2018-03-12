@@ -1,0 +1,34 @@
+#!/bin/bash
+
+DIR=`pwd`
+[ "$1" != "" ] && DIR=$1
+
+echo $DIR...
+
+for i in $DIR/*.vcdiff.lzo
+do
+        FILE=`basename $i`
+        BASEFILE=${FILE//--differential-*/}
+        [ "$FILE" == "$BASEFILE" ] && continue
+	if [ "$FILE" != "${FILE/.vma/}" ]
+	then
+	        echo -n "Testing VMA: $FILE... "
+        	if pve-xdelta3 -q -d -c -R -s "$DIR/$BASEFILE" "$DIR/$FILE" | vma verify - > /dev/null
+        	then
+			echo "OK"
+        	else
+               		echo "FAIL"
+        	fi
+
+	else
+	        echo -n "Testing TAR: $FILE... "
+        	if pve-xdelta3 -q -d -c -R -s "$DIR/$BASEFILE" "$DIR/$FILE" | tar t > /dev/null
+        	then
+			echo "OK"
+        	else
+               		echo "FAIL"
+        	fi
+	fi
+done
+
+echo Done.
