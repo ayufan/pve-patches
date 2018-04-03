@@ -4,7 +4,7 @@ Proxmox VE is a complete virtualization management solution for servers. You can
 
 Due to lack of better backup functionality I prepared patches to support differential backups in Proxmox VE. These patches are in use for over a year.
 
-Currently supported versions are **3.4, 4.1, 4.2, 4.3, 4.4, 5.0, 5.1**.
+Currently supported versions are **3.4, 4.1, 4.2, 4.3, 4.4, 5.0, 5.1, 5.1-48**.
 
 <!--more-->
 
@@ -56,7 +56,7 @@ When everything went right, you’ll see:
 Then install latest version of `pve-xdelta3`, which enables the support for **LZOP** compressor. You can find the sources [here](https://github.com/ayufan/pve-xdelta3).
 
     ```bash
-    dpkg -i pve-xdelta3_3.0.11-dfsg-1ubuntu1ayufan1_amd64.deb
+    dpkg -i pve-xdelta3_3.0.6-1_amd64.deb
     ```
 
 Feel free to compile the sources yourself by downloading the repo and executing `dpkg-buildpackage -b -us -uc`.
