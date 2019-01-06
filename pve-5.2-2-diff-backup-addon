@@ -420,24 +420,36 @@ revert)
         ;;
 
 apply)
-        if pve_manager_patch | patch_apply /usr/share/pve-manager/ --dry-run --batch
-        then
-                pve_manager_patch | patch_apply /usr/share/pve-manager/
-                echo "PATCHED: /usr/share/pve-manager/"
+        PKG_OK=$(dpkg-query -W --showformat='${Status}\n' patch 2>/dev/null |grep "install ok installed")
+        echo Checking for patch: $PKG_OK
+        if [ "" == "$PKG_OK" ]; then
+                echo "No patch please install with \"apt-get install patch\""
+        else
+                if pve_manager_patch | patch_apply /usr/share/pve-manager/ --dry-run --batch
+                then
+                        pve_manager_patch | patch_apply /usr/share/pve-manager/
+                        echo "PATCHED: /usr/share/pve-manager/"
+                fi
+                if pve_perl_patch | patch_apply /usr/share/perl5/PVE/ --dry-run --batch
+                then
+                        pve_perl_patch | patch_apply /usr/share/perl5/PVE/
+                        echo "PATCHED: /usr/share/perl5/PVE/"
+                fi
+                echo ""
+                service pveproxy restart
+                service pvedaemon restart
         fi
-        if pve_perl_patch | patch_apply /usr/share/perl5/PVE/ --dry-run --batch
-        then
-                pve_perl_patch | patch_apply /usr/share/perl5/PVE/
-                echo "PATCHED: /usr/share/perl5/PVE/"
-        fi
-        echo ""
-        service pveproxy restart
-        service pvedaemon restart
         ;;
 
 test)
-        pve_manager_patch | patch_apply /usr/share/pve-manager/ --dry-run --batch || true
-        pve_perl_patch | patch_apply /usr/share/perl5/PVE/ --dry-run --batch || true
+        PKG_OK=$(dpkg-query -W --showformat='${Status}\n' patch 2>/dev/null |grep "install ok installed")
+        echo Checking for patch: $PKG_OK
+        if [ "" == "$PKG_OK" ]; then
+                          echo "No patch please install with \"apt-get install patch\""
+        else
+                pve_manager_patch | patch_apply /usr/share/pve-manager/ --dry-run --batch || true
+                pve_perl_patch | patch_apply /usr/share/perl5/PVE/ --dry-run --batch || true
+        fi
         ;;
 
 *)
