@@ -119,7 +119,7 @@ However, if you happen to be paranoidal about backups… You should consider run
 
 In case of any problems applying or reverting patches you can always simple revert back to stock. Simply reinstall modified packages:
 
-        apt-get --reinstall install pve-manager qemu-server libpve-storage-perl
+        apt-get --reinstall install pve-manager pve-container qemu-server libpve-storage-perl 
 
 Then you can try to reapply patches once again.
 
