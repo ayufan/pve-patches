@@ -84,6 +84,15 @@ After a while, you’ll see:
 
 **This is important part.** If you will ever want to upgrade your Proxmox installation (by *apt-get dist-upgrade* or *apt-get upgrade*) *ALWAYS* revert/uninstall patches. You will still be able to apply them afterwards.
 
+## Hunks are FAILED, but the patch version matches release! HELP?!
+
+Most likely, you've ignored the previous paragraph, and updated without reverting the patchset. Fear not, since there's a pretty straigth-forward solution:
+
+```bash
+apt install --reinstall libpve-guest-common-perl libpve-u2f-server-perl pve-xtermjs pve-firewall librados2-perl libpve-apiclient-perl pve-cluster pve-ha-manager pve-container libpve-access-control pve-manager libpve-common-perl libpve-storage-perl qemu-server libpve-http-server-perl
+```
+Tip: You can always run dpkg -S /path/to/failed/file and `apt install --reinstall` responsible package.
+
 ## How to apply new patch version?
 
 * Use previous patch to revert changes.
