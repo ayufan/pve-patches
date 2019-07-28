@@ -110,7 +110,7 @@ You see the differences. The diff sizes strictly depends on the use of the VMs. 
 
 ## Is it stable?
 
-Yes, it is. This extensions uses **xdelta3** as differential backup tool, which proven to be well tested and stable. I use it for about 9 months on 4 different Proxmox based servers. No problems so far.
+Yes, it is. This extensions uses **xdelta3** as differential backup tool, which proven to be well tested and stable. A number of people use it for over 6 years already :)
 
 However, if you happen to be paranoidal about backups… You should consider running following script. The script simply tries to verify all differential backups. I recently updated the script to support new VMA archive. So now you can verify backups all supported backups.
 
