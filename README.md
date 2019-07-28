@@ -2,9 +2,14 @@
 
 Proxmox VE is a complete virtualization management solution for servers. You can virtualize even the most demanding application workloads running on Linux and Windows Servers. Checkout their page: [proxmox.com](http://proxmox.com/products/proxmox-ve).
 
-Due to lack of better backup functionality I prepared patches to support differential backups in Proxmox VE. These patches are in use for over a year.
+Due to lack of better backup functionality I prepared patches to support differential backups in Proxmox VE.
+These patches are in use for over over a 6 years already :)
 
 <!--more-->
+
+## You find it valuable?
+
+[Buy me a Beer](https://www.paypal.me/ayufanpl)
 
 ## What are differential backups?
 
@@ -163,11 +168,7 @@ In order to remove all leftovers you have to edit */etc/pve/vzdump.cron* and rem
 
 ## Author
 
-Kamil Trzciński, 2013-2018
-
-## You find it valuable?
-
-[Buy me a Beer](https://www.paypal.me/ayufanpl)
+Kamil Trzciński, 2013-2019
 
 ## License
 
