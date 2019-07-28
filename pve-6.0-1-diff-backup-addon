@@ -93,7 +93,7 @@ test)
   ;;
 
 patch)
-  pve_patch
+  patch_diff
   ;;
 
 selftest-qemu)
