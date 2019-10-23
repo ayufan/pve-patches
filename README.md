@@ -28,7 +28,7 @@ System administrator can use one additional parameter in Backup Jobs (Datacenter
 
 Please consider the following example:
 
-        vzdump 101 --remove 0 --mode snapshot --compress lzo --storage local --node hvm --fullbackup 4
+    vzdump 101 --remove 0 --mode snapshot --compress lzo --storage local --node hvm --fullbackup 4
 
 
 It will create full backup of VM101 every 4 days, compressed using lzo, stored on local storage.
@@ -37,30 +37,30 @@ It will create full backup of VM101 every 4 days, compressed using lzo, stored o
 
 The installation procedure is fairly simple:
 
-    ```bash
-    git clone https://github.com/ayufan/pve-patches
-    cd pve-patches
-    bash pve-5.1-diff-backup-addon apply
-    ```
+```bash
+git clone https://github.com/ayufan/pve-patches
+cd pve-patches
+bash pve-5.1-diff-backup-addon apply
+```
 
 When everything went right, you’ll see:
 
-    ```text
-    Proxmox VE 5.1 - differential backup support
-    Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu
+```text
+Proxmox VE 5.1 - differential backup support
+Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu
 
-    PATCHED: /usr/share/pve-manager/
-    PATCHED: /usr/share/perl5/PVE/
+PATCHED: /usr/share/pve-manager/
+PATCHED: /usr/share/perl5/PVE/
 
-    Restarting PVE API Proxy Server: pveproxy.
-    Restarting PVE Daemon: pvedaemon.
-    ```
+Restarting PVE API Proxy Server: pveproxy.
+Restarting PVE Daemon: pvedaemon.
+```
 
 Then install latest version of `pve-xdelta3`, which enables the support for **LZOP** compressor. You can find the sources [here](https://github.com/ayufan/pve-xdelta3).
 
-    ```bash
-    dpkg -i pve-xdelta3_3.0.6-1_amd64.deb
-    ```
+```bash
+dpkg -i pve-xdelta3_3.0.6-1_amd64.deb
+```
 
 Feel free to compile the sources yourself by downloading the repo and executing `dpkg-buildpackage -b -us -uc`.
 
@@ -68,22 +68,22 @@ Feel free to compile the sources yourself by downloading the repo and executing 
 
 The procedure is simpler than installation. Type in the bash:
 
-    ```bash
-    bash pve-5.1-diff-backup-addon revert
-    ```
+```bash
+bash pve-5.1-diff-backup-addon revert
+```
 
 After a while, you’ll see:
 
-    ```text
-    Proxmox VE 5.1 - differential backup support
-    Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu
+```text
+Proxmox VE 5.1 - differential backup support
+Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu
 
-    RESTORED: /usr/share/pve-manager/
-    RESTORED: /usr/share/perl5/PVE/
+RESTORED: /usr/share/pve-manager/
+RESTORED: /usr/share/perl5/PVE/
 
-    Restarting PVE API Proxy Server: pveproxy.
-    Restarting PVE Daemon: pvedaemon.
-    ```
+Restarting PVE API Proxy Server: pveproxy.
+Restarting PVE Daemon: pvedaemon.
+```
 
 ## What about UPGRADE? (READ THIS)
 
@@ -107,13 +107,13 @@ Tip: You can always run dpkg -S /path/to/failed/file and `apt install --reinstal
 
 The results are really astonishing! These are real word values:
 
-    ```text
-    VM   full      diff 1day   diff 2days   diff 3days    diff 4days
-    1.   39.10GB   41MB        47MB         51MB          55MB
-    2.   96.84GB   1.07GB      1.38GB       1.43GB        1.68GB
-    3.   83.95GB   1.68GB      2.66GB       3.69GB        4.25GB
-    4.   9.19GB    76KB        76KB         166MB         198MB
-    ```
+```text
+VM   full      diff 1day   diff 2days   diff 3days    diff 4days
+1.   39.10GB   41MB        47MB         51MB          55MB
+2.   96.84GB   1.07GB      1.38GB       1.43GB        1.68GB
+3.   83.95GB   1.68GB      2.66GB       3.69GB        4.25GB
+4.   9.19GB    76KB        76KB         166MB         198MB
+```
 
 You see the differences. The diff sizes strictly depends on the use of the VMs. Using differential backups I have backups from last month (full backup once a week, differential daily)
 
@@ -123,15 +123,15 @@ Yes, it is. This extensions uses **xdelta3** as differential backup tool, which 
 
 However, if you happen to be paranoidal about backups… You should consider running following script. The script simply tries to verify all differential backups. I recently updated the script to support new VMA archive. So now you can verify backups all supported backups.
 
-    ```bash
-    ./pve-verify-backups <backup-dir>
-    ```
+```bash
+./pve-verify-backups <backup-dir>
+```
 
 ## FAQ
 
 In case of any problems applying or reverting patches you can always simple revert back to stock. Simply reinstall modified packages:
 
-        apt-get --reinstall install pve-manager pve-container qemu-server libpve-storage-perl 
+    apt-get --reinstall install pve-manager pve-container qemu-server libpve-storage-perl 
 
 Then you can try to reapply patches once again.
 
