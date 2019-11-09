@@ -88,6 +88,23 @@ apply)
   print_and_run service pvedaemon restart
   ;;
 
+reinstall)
+  PATHS=$(patch_diff | grep "^+++ b/" | sed 's/^\+\+\+ b//g')
+  echo "Affected file paths:"
+  echo "$PATHS"
+  echo ""
+
+  PACKAGES=$(dpkg --search $PATHS | cut -d: -f1 | tr -d ,)
+  echo "Affected packages:"
+  echo "$PACKAGES"
+  echo ""
+
+  echo "Press Enter to continue, or Ctrl-C to cancel."
+  read PROMPT
+
+  apt-get --reinstall install $PACKAGES
+  ;;
+
 test)
   print_and_run patch_apply / --dry-run --batch
   ;;
