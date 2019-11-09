@@ -40,13 +40,13 @@ The installation procedure is fairly simple:
     ```bash
     git clone https://github.com/ayufan/pve-patches
     cd pve-patches
-    bash pve-5.1-diff-backup-addon apply
+    bash pve-6.0-11-diff-backup-addon apply
     ```
 
 When everything went right, you’ll see:
 
     ```text
-    Proxmox VE 5.1 - differential backup support
+    Proxmox VE 6.0-11 - differential backup support
     Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu
 
     PATCHED: /usr/share/pve-manager/
@@ -69,13 +69,13 @@ Feel free to compile the sources yourself by downloading the repo and executing 
 The procedure is simpler than installation. Type in the bash:
 
     ```bash
-    bash pve-5.1-diff-backup-addon revert
+    bash pve-6.0-11-diff-backup-addon revert
     ```
 
 After a while, you’ll see:
 
     ```text
-    Proxmox VE 5.1 - differential backup support
+    Proxmox VE 6.0-11 - differential backup support
     Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu
 
     RESTORED: /usr/share/pve-manager/
@@ -129,11 +129,25 @@ However, if you happen to be paranoidal about backups… You should consider run
 
 ## FAQ
 
-In case of any problems applying or reverting patches you can always simple revert back to stock. Simply reinstall modified packages:
+In case of any problems applying or reverting patches you can always simple revert back to stock. Simply reinstall modified packages (supported since 6.0-11):
 
-        apt-get --reinstall install pve-manager pve-container qemu-server libpve-storage-perl 
+    ```bash
+    ./pve-6.0-11-diff-backup-addon reinstall
+    ```
 
-Then you can try to reapply patches once again.
+Then you can try to reapply patches once again. However, keep in mind that
+reinstall can install a newer version of the packages. In such cases it is advised
+always to do it connected with `upgrade` of Proxmox.
+
+    ```bash
+    apt-get update
+    apt-get dist-upgrade
+    ./pve-6.0-11-diff-backup-addon reinstall
+    ./pve-6.0-11-diff-backup-addon apply
+    ```
+
+This effectively ensures that patch is applied on the latest version
+and completely in a clean approach.
 
 In order to remove all leftovers you have to edit */etc/pve/vzdump.cron* and remove *fullbackup* switch from *vzdump* command line.
 
