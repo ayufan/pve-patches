@@ -89,14 +89,29 @@ After a while, you’ll see:
 
 **This is important part.** If you will ever want to upgrade your Proxmox installation (by *apt-get dist-upgrade* or *apt-get upgrade*) *ALWAYS* revert/uninstall patches. You will still be able to apply them afterwards.
 
-## Hunks are FAILED, but the patch version matches release! HELP?!
+## Hunks FAILED, but the patch version matches release! HELP?!
 
-Most likely, you've ignored the previous paragraph, and updated without reverting the patchset. Fear not, since there's a pretty straigth-forward solution:
+In case of any problems applying or reverting patches you can always simple revert back to stock. Simply reinstall modified packages (supported since 6.0-11):
 
-```bash
-apt install --reinstall libpve-guest-common-perl libpve-u2f-server-perl pve-xtermjs pve-firewall librados2-perl libpve-apiclient-perl pve-cluster pve-ha-manager pve-container libpve-access-control pve-manager libpve-common-perl libpve-storage-perl qemu-server libpve-http-server-perl
-```
-Tip: You can always run dpkg -S /path/to/failed/file and `apt install --reinstall` responsible package.
+    ```bash
+    ./pve-6.0-11-diff-backup-addon reinstall
+    ```
+
+Then you can try to reapply patches once again. However, keep in mind that
+reinstall can install a newer version of the packages. In such cases it is advised
+always to do it connected with `upgrade` of Proxmox.
+
+    ```bash
+    apt-get update
+    apt-get dist-upgrade
+    ./pve-6.0-11-diff-backup-addon reinstall
+    ./pve-6.0-11-diff-backup-addon apply
+    ```
+
+This effectively ensures that patch is applied on the latest version
+and completely in a clean approach.
+
+In order to remove all leftovers you have to edit */etc/pve/vzdump.cron* and remove *fullbackup* switch from *vzdump* command line.
 
 ## How to apply new patch version?
 
@@ -126,30 +141,6 @@ However, if you happen to be paranoidal about backups… You should consider run
     ```bash
     ./pve-verify-backups <backup-dir>
     ```
-
-## FAQ
-
-In case of any problems applying or reverting patches you can always simple revert back to stock. Simply reinstall modified packages (supported since 6.0-11):
-
-    ```bash
-    ./pve-6.0-11-diff-backup-addon reinstall
-    ```
-
-Then you can try to reapply patches once again. However, keep in mind that
-reinstall can install a newer version of the packages. In such cases it is advised
-always to do it connected with `upgrade` of Proxmox.
-
-    ```bash
-    apt-get update
-    apt-get dist-upgrade
-    ./pve-6.0-11-diff-backup-addon reinstall
-    ./pve-6.0-11-diff-backup-addon apply
-    ```
-
-This effectively ensures that patch is applied on the latest version
-and completely in a clean approach.
-
-In order to remove all leftovers you have to edit */etc/pve/vzdump.cron* and remove *fullbackup* switch from *vzdump* command line.
 
 ## Changelog
 
