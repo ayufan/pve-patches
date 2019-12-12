@@ -94,7 +94,7 @@ reinstall)
   echo "$PATHS"
   echo ""
 
-  PACKAGES=$(dpkg --search $PATHS | cut -d: -f1 | tr -d ,)
+  PACKAGES=$(dpkg --search $PATHS | cut -d: -f1 | tr -d , | sort -u)
   echo "Affected packages:"
   echo "$PACKAGES"
   echo ""

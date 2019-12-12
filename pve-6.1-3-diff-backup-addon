@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-echo "Proxmox VE 6.0-7 - differential backup support, v3"
+echo "Proxmox VE 6.1-3 - differential backup support, v3"
 echo "Kamil Trzcinski, http://ayufan.eu/, ayufan@ayufan.eu"
 echo ""
 
@@ -94,7 +94,7 @@ reinstall)
   echo "$PATHS"
   echo ""
 
-  PACKAGES=$(dpkg --search $PATHS | cut -d: -f1 | tr -d ,)
+  PACKAGES=$(dpkg --search $PATHS | cut -d: -f1 | tr -d , | sort -u)
   echo "Affected packages:"
   echo "$PACKAGES"
   echo ""
@@ -164,7 +164,7 @@ diff --git a/usr/share/pve-manager/js/pvemanagerlib.js b/usr/share/pve-manager/j
 index 7a92574..d2bca5b 100644
 --- a/usr/share/pve-manager/js/pvemanagerlib.js
 +++ b/usr/share/pve-manager/js/pvemanagerlib.js
-@@ -38179,6 +42309,25 @@ Ext.define('PVE.dc.BackupEdit', {
+@@ -38372,6 +42309,25 @@ Ext.define('PVE.dc.BackupEdit', {
         name: 'mode'
         },
         {
@@ -231,7 +231,7 @@ diff --git a/usr/share/perl5/PVE/QemuServer.pm b/usr/share/perl5/PVE/QemuServer.
 index 7becdeb..516d5a5 100644
 --- a/usr/share/perl5/PVE/QemuServer.pm
 +++ b/usr/share/perl5/PVE/QemuServer.pm
-@@ -6029,8 +6029,18 @@ sub tar_archive_read_firstfile {
+@@ -5944,8 +5944,18 @@ sub tar_archive_read_firstfile {
  
      die "ERROR: file '$archive' does not exist\n" if ! -f $archive;
  
@@ -251,7 +251,7 @@ index 7becdeb..516d5a5 100644
  	die "unable to open file '$archive'\n";
      my $firstfile = <$fh>;
      kill 15, $pid;
-@@ -6382,7 +6392,13 @@ sub restore_vma_archive {
+@@ -6297,7 +6307,13 @@ sub restore_vma_archive {
  	}
      }
  
@@ -266,7 +266,7 @@ index 7becdeb..516d5a5 100644
  	my $cmd;
  	if ($comp eq 'gzip') {
  	    $cmd = ['zcat', $readfrom];
-@@ -6702,8 +6718,17 @@ sub restore_tar_archive {
+@@ -6617,8 +6718,17 @@ sub restore_tar_archive {
  
      # tar option "xf" does not autodetect compression when read from STDIN,
      # so we pipe to zcat
@@ -373,17 +373,9 @@ index 163871d..da6ce2d 100644
  
 diff --git a/usr/share/perl5/PVE/VZDump.pm b/usr/share/perl5/PVE/VZDump.pm
 index 510d964..d950ee2 100644
---- a/usr/share/perl5/PVE/VZDump.pm
-+++ b/usr/share/perl5/PVE/VZDump.pm
-@@ -8,6 +10,7 @@ use IO::File;
- use IO::Select;
- use IPC::Open3;
- use File::Path;
-+use File::Basename;
- use PVE::RPCEnvironment;
- use PVE::Storage;
- use PVE::Cluster qw(cfs_read_file);
-@@ -169,6 +170,13 @@ my $confdesc = {
+--- a/usr/share/perl5/PVE/VZDump/Common.pm
++++ b/usr/share/perl5/PVE/VZDump/Common.pm
+@@ -203,6 +203,13 @@ my $confdesc = {
  	minimum => 1,
  	default => 1,
      },
@@ -397,7 +389,19 @@ index 510d964..d950ee2 100644
      remove => {
  	type => 'boolean',
  	description => "Remove old backup files if there are more than 'maxfiles' backup files.",
-@@ -737,6 +745,22 @@ sub get_backup_file_list {
+diff --git a/usr/share/perl5/PVE/VZDump.pm b/usr/share/perl5/PVE/VZDump.pm
+index 510d964..d950ee2 100644
+--- a/usr/share/perl5/PVE/VZDump.pm
++++ b/usr/share/perl5/PVE/VZDump.pm
+@@ -8,6 +10,7 @@ use IO::File;
+ use IO::Select;
+ use IPC::Open3;
+ use File::Path;
++use File::Basename;
+ use PVE::RPCEnvironment;
+ use PVE::Storage;
+ use PVE::Cluster qw(cfs_read_file);
+@@ -584,6 +585,22 @@ sub get_backup_file_list {
  
      return $bklist;
  }
@@ -420,7 +424,7 @@ index 510d964..d950ee2 100644
   
  sub exec_backup_task {
      my ($self, $task) = @_;
-@@ -788,13 +803,40 @@ sub exec_backup_task {
+@@ -635,13 +803,40 @@ sub exec_backup_task {
  		if scalar(@$bklist) >= $maxfiles;
  	}
  
@@ -467,7 +471,7 @@ index 510d964..d950ee2 100644
  
  	if ($opts->{stdout}) {
  	    $task->{tarfile} = '-';
-@@ -967,7 +1016,7 @@ sub exec_backup_task {
+@@ -814,7 +1016,7 @@ sub exec_backup_task {
  	}
  
  	debugmsg ('info', "creating archive '$task->{tarfile}'", $logfd);
@@ -476,7 +480,7 @@ index 510d964..d950ee2 100644
  
  	rename ($task->{tmptar}, $task->{tarfile}) ||
  	    die "unable to rename '$task->{tmptar}' to '$task->{tarfile}'\n";
-@@ -979,7 +1028,7 @@ sub exec_backup_task {
+@@ -826,7 +1028,7 @@ sub exec_backup_task {
  
  	# purge older backup
  
@@ -485,7 +489,7 @@ index 510d964..d950ee2 100644
  	    my $bklist = get_backup_file_list($opts->{dumpdir}, $bkname, $task->{tarfile});
  	    $bklist = [ sort { $b->[1] <=> $a->[1] } @$bklist ];
  
-@@ -990,6 +1039,16 @@ sub exec_backup_task {
+@@ -837,6 +1039,16 @@ sub exec_backup_task {
  		my $logfn = $d->[0];
  		$logfn =~ s/\.(tgz|((tar|vma)(\.(gz|lzo))?))$/\.log/;
  		unlink $logfn;
@@ -506,7 +510,7 @@ diff --git a/usr/share/perl5/PVE/VZDump/LXC.pm b/usr/share/perl5/PVE/VZDump/LXC.
 index ae793dc..06a88e7 100644
 --- a/usr/share/perl5/PVE/VZDump/LXC.pm
 +++ b/usr/share/perl5/PVE/VZDump/LXC.pm
-@@ -302,7 +296,7 @@ sub assemble {
+@@ -303,7 +296,7 @@ sub assemble {
  }
  
  sub archive {
@@ -515,7 +519,7 @@ index ae793dc..06a88e7 100644
  
      my $disks = $task->{disks};
      my @sources;
-@@ -362,6 +356,7 @@ sub archive {
+@@ -363,6 +356,7 @@ sub archive {
  
      my $bwl = $opts->{bwlimit}*1024; # bandwidth limit for cstream
      push @$cmd, [ 'cstream', '-t', $bwl ] if $opts->{bwlimit};
@@ -527,7 +531,7 @@ diff --git a/usr/share/perl5/PVE/VZDump/QemuServer.pm b/usr/share/perl5/PVE/VZDu
 index 70abe99..8cad998 100644
 --- a/usr/share/perl5/PVE/VZDump/QemuServer.pm
 +++ b/usr/share/perl5/PVE/VZDump/QemuServer.pm
-@@ -237,7 +237,7 @@ sub assemble {
+@@ -243,7 +237,7 @@ sub assemble {
  }
  
  sub archive {
@@ -536,7 +540,7 @@ index 70abe99..8cad998 100644
  
      my $conffile = "$task->{tmpdir}/qemu-server.conf";
      my $firewall = "$task->{tmpdir}/qemu-server.fw";
-@@ -347,6 +347,15 @@ sub archive {
+@@ -353,6 +347,15 @@ sub archive {
  		die "unable to open file '$filename' - $!\n";
  	}
  
