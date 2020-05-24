@@ -28,11 +28,12 @@ patch_test() {
   local VMID="$2"
   local EXT="$3"
   local TARGET_VMID="$4"
+  local TARGET_EXT="$EXT"
+  TARGET_EXT=${TARGET_EXT/tar/}
+  TARGET_EXT=${TARGET_EXT/vma/}
   shift 4
 
   echo "Testing type=$TYPE vmid=$VMID:$TARGET_VMID ext=$ext flags=$@..."
-
-  print_and_run rm -rf /var/lib/vz/dump/vzdump-$TYPE-$VMID-*
 
   case $TYPE in
     qemu)
@@ -42,7 +43,7 @@ patch_test() {
       print_and_run vzdump --fullbackup=5 "$@" $VMID
 
       print_and_run qmrestore --force=true /var/lib/vz/dump/vzdump-qemu-$VMID-*.$EXT $TARGET_VMID
-      print_and_run qmrestore --force=true /var/lib/vz/dump/vzdump-qemu-$VMID-*.$EXT-*.vcdiff $TARGET_VMID
+      print_and_run qmrestore --force=true /var/lib/vz/dump/vzdump-qemu-$VMID-*.$EXT-*.vcdiff${TARGET_EXT} $TARGET_VMID
       ;;
 
     lxc)
@@ -52,7 +53,7 @@ patch_test() {
       print_and_run vzdump --fullbackup=5 "$@" $VMID
 
       print_and_run pct restore $TARGET_VMID /var/lib/vz/dump/vzdump-lxc-$VMID-*.$EXT --force=true
-      print_and_run pct restore $TARGET_VMID /var/lib/vz/dump/vzdump-lxc-$VMID-*.$EXT-*.vcdiff --force=true
+      print_and_run pct restore $TARGET_VMID /var/lib/vz/dump/vzdump-lxc-$VMID-*.$EXT-*.vcdiff${TARGET_EXT} --force=true
       ;;
   esac
 }
@@ -128,8 +129,11 @@ selftest-qemu)
   echo "Press enter to continue, Ctrl-C to abort"
   read LINE
 
-  patch_test qemu 500 vma 510
+  print_and_run rm -rf /var/lib/vz/dump/vzdump-qemu-500-*
+  patch_test qemu 500 vma.zst 510 --compress=zstd
   patch_test qemu 500 vma.lzo 510 --compress=lzo
+  patch_test qemu 500 vma 510
+  patch_test qemu 500 vma.gz 510 --compress=gzip
   ;;
 
 selftest-lxc)
@@ -147,8 +151,11 @@ selftest-lxc)
   echo "Press enter to continue, Ctrl-C to abort"
   read LINE
 
-  patch_test lxc 501 tar 511
+  print_and_run rm -rf /var/lib/vz/dump/vzdump-lxc-501-*
+  patch_test lxc 501 tar.zst 511 --compress=zstd
   patch_test lxc 501 tar.lzo 511 --compress=lzo
+  patch_test lxc 501 tar 511
+  patch_test lxc 501 tar.gz 511 --compress=gzip
   ;;
 
 *)
