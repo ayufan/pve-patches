@@ -56,10 +56,11 @@ When everything went right, you’ll see:
     Restarting PVE Daemon: pvedaemon.
     ```
 
-Then install latest version of `pve-xdelta3`, which enables the support for **LZOP** compressor. You can find the sources [here](https://github.com/ayufan/pve-xdelta3).
+Then install latest version of `pve-xdelta3`, which enables the support for **LZOP** and **ZSTD** compressors. You can find the sources [here](https://github.com/ayufan/pve-xdelta3).
 
     ```bash
-    dpkg -i pve-xdelta3_3.0.6-1_amd64.deb
+    wget https://github.com/ayufan/pve-xdelta3/releases/download/3.0.11.zstd/pve-xdelta3_3.0.11-dfsg-1ubuntu1.zstd.ayufan2_amd64.deb
+    dpkg -i pve-xdelta3_3.0.11-dfsg-1ubuntu1.zstd.ayufan2_amd64.deb
     ```
 
 Feel free to compile the sources yourself by downloading the repo and executing `dpkg-buildpackage -b -us -uc`.
@@ -182,7 +183,7 @@ However, if you happen to be paranoidal about backups… You should consider run
 
 ## Author
 
-Kamil Trzciński, 2013-2019
+Kamil Trzciński, 2013-2020
 
 ## License
 
