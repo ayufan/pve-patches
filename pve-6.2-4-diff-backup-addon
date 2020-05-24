@@ -77,19 +77,20 @@ revert)
   ;;
 
 apply)
+  if ! dpkg -s pve-xdelta3 2>/dev/null | grep -q zstd; then
+    echo "Missing pve-xdelta3"
+    echo
+    echo "wget https://github.com/ayufan/pve-xdelta3/releases/download/3.0.11.zstd/pve-xdelta3_3.0.11-dfsg-1ubuntu1.zstd.ayufan2_amd64.deb"
+    echo "dpkg -i pve-xdelta3_3.0.11-dfsg-1ubuntu1.zstd.ayufan2_amd64.deb"
+    exit 1
+  fi
+
   if patch_apply / --dry-run
   then
     print_and_run patch_apply /
     echo "APPLIED"
   else
     echo "FAILED to apply!"
-    exit 1
-  fi
-
-  if ! dpkg -s pve-xdelta32 2>/dev/null | grep -q zstd; then
-    echo "Missing pve-xdelta3. Install from:"
-    echo "wget https://github.com/ayufan/pve-xdelta3/releases/download/3.0.11.zstd/pve-xdelta3_3.0.11-dfsg-1ubuntu1.zstd.ayufan2_amd64.deb"
-    echo "dpkg -i pve-xdelta3_3.0.11-dfsg-1ubuntu1.zstd.ayufan2_amd64.deb"
     exit 1
   fi
 
