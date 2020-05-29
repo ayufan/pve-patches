@@ -380,7 +380,7 @@ index f1e3b19..f385c2b 100644
  	$raw .= "$output\n";
      };
  
--    run_command(['tar', '-xpOf', $archive, $file, '--occurrence'], outfunc => $out);
+-    PVE::Tools::run_command(['tar', '-xpOf', $archive, $file, '--occurrence'], outfunc => $out);
 +    my $cmd = ['tar', '-xpOf', $archive, $file, '--occurrence'];
 +    if (my $fullbackup = get_full_backup($archive)) {
 +        $cmd = [
