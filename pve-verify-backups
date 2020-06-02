@@ -5,7 +5,7 @@ DIR=`pwd`
 
 echo $DIR...
 
-for i in $DIR/*.vcdiff.lzo
+for i in $DIR/*.vcdiff.zst $DIR/*.vcdiff.lzo $DIR/*.vcdiff.gz $DIR/*.vcdiff
 do
         FILE=`basename $i`
         BASEFILE=${FILE//--differential-*/}
