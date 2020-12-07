@@ -456,9 +456,9 @@ index 0a2e2e0..f77c9d1 100644
  sub exec_backup_task {
      my ($self, $task) = @_;
 
-@@ -722,17 +742,46 @@ sub exec_backup_task {
-                if $count >= $maxfiles;
-        }
+@@ -722,17 +742,48 @@ sub exec_backup_task {
+ 		if $count >= $maxfiles;
+ 	}
 
 -       if (!$self->{opts}->{pbs}) {
 -           $task->{logfile} = "$opts->{dumpdir}/$basename.log";
@@ -473,30 +473,32 @@ index 0a2e2e0..f77c9d1 100644
 +                               $opts->{fullbackup} * 24 * 60 * 60 -
 +                               12 * 60 * 60; # - 12h just to make sure that on last day we create full backup
 +
-+                       foreach my $d (@$bklist) {
-+                       next if $mintime > $d->[1];
 +
-+                       $fullbackup = $d->[0];
-+                       $basename = basename($fullbackup);
-+                       $basename = sprintf "${basename}--differential-%04d_%02d_%02d-%02d_%02d_%02d",
++                       while (scalar (@$bklist) >= $maxfiles) {
++                           my $d = pop @$bklist;
++                           my $fullbackup = $d->{path};
++			   next if $mintime > $d->{ctime};
++
++                           $basename = basename($fullbackup);
++                           $basename = sprintf "${basename}--differential-%04d_%02d_%02d-%02d_%02d_%02d",
 +                                       $year + 1900, $mon + 1, $mday,
 +                                       $hour, $min, $sec;
-+                       $ext = ".vcdiff";
++                           $ext = ".vcdiff";
 +
-+                       debugmsg ('info', "doing differential backup against '$fullbackup'");
-+                       last;
++                           debugmsg ('info', "doing differential backup against '$fullbackup'");
++                           last;
 +                       }
 +
 +                       debugmsg ('info', "doing full backup, because no backup found in last $opts->{fullbackup} day(s)")
 +                       if !$fullbackup;
 +               }
-        }
+ 	}
 
 -       my $ext = $vmtype eq 'qemu' ? '.vma' : '.tar';
-        my ($comp, $comp_ext) = compressor_info($opts);
-        if ($comp && $comp_ext) {
-            $ext .= ".${comp_ext}";
-        }
+ 	my ($comp, $comp_ext) = compressor_info($opts);
+ 	if ($comp && $comp_ext) {
+ 	    $ext .= ".${comp_ext}";
+ 	}
 
 -       if ($self->{opts}->{pbs}) {
 +       if (!$opts->{opts}->{type}) {
@@ -504,52 +506,51 @@ index 0a2e2e0..f77c9d1 100644
 +       }
 +
 +       if ($opts->{opts}->{type}) {
-            die "unable to pipe backup to stdout\n" if $opts->{stdout};
-            $task->{target} = $pbs_snapshot_name;
-        } else {
-@@ -904,14 +953,14 @@ sub exec_backup_task {
+ 	    die "unable to pipe backup to stdout\n" if $opts->{stdout};
+ 	    $task->{target} = $pbs_snapshot_name;
+ 	} else {
+@@ -904,14 +955,14 @@ sub exec_backup_task {
 
-        if ($opts->{stdout}) {
-            debugmsg ('info', "sending archive to stdout", $logfd);
+ 	if ($opts->{stdout}) {
+ 	    debugmsg ('info', "sending archive to stdout", $logfd);
 -           $plugin->archive($task, $vmid, $task->{tmptar}, $comp);
 +           $plugin->archive($task, $vmid, $task->{tmptar}, $comp, $fullbackup);
-            $self->run_hook_script ('backup-end', $task, $logfd);
-            return;
-        }
+ 	    $self->run_hook_script ('backup-end', $task, $logfd);
+ 	    return;
+ 	}
 
-        my $archive_txt = $self->{opts}->{pbs} ? 'Proxmox Backup Server' : 'vzdump';
-        debugmsg('info', "creating $archive_txt archive '$task->{target}'", $logfd);
+ 	my $archive_txt = $self->{opts}->{pbs} ? 'Proxmox Backup Server' : 'vzdump';
+ 	debugmsg('info', "creating $archive_txt archive '$task->{target}'", $logfd);
 -       $plugin->archive($task, $vmid, $task->{tmptar}, $comp);
 +       $plugin->archive($task, $vmid, $task->{tmptar}, $comp, $fullbackup);
 
-        if ($self->{opts}->{pbs}) {
-            # size is added to task struct in guest vzdump plugins
-@@ -926,7 +975,7 @@ sub exec_backup_task {
-        }
+ 	if ($self->{opts}->{pbs}) {
+ 	    # size is added to task struct in guest vzdump plugins
+@@ -926,7 +977,7 @@ sub exec_backup_task {
+ 	}
 
-        # purge older backup
+ 	# purge older backup
 -       if ($maxfiles && $opts->{remove}) {
 +       if ($maxfiles && $opts->{remove} && !$fullbackup) {
 
-            if ($self->{opts}->{pbs}) {
-                my $args = [$pbs_group_name, '--quiet', '1', '--keep-last', $maxfiles];
-@@ -942,6 +991,15 @@ sub exec_backup_task {
-                    my $archive_path = $d->{path};
-                    debugmsg ('info', "delete old backup '$archive_path'", $logfd);
-                    PVE::Storage::archive_remove($archive_path);
+ 	    if ($self->{opts}->{pbs}) {
+ 		my $args = [$pbs_group_name, '--quiet', '1', '--keep-last', $maxfiles];
+@@ -942,6 +993,15 @@ sub exec_backup_task {
+ 		    my $archive_path = $d->{path};
+ 		    debugmsg ('info', "delete old backup '$archive_path'", $logfd);
+ 		    PVE::Storage::archive_remove($archive_path);
 +
-+                   my $dbklist = get_differential_backup_file_list($opts->{dumpdir}, basename( $archive_path ));
-+                   $dbklist = [ sort { $b->{ctime} <=> $a->{ctime} } @$dbklist ];
++                    my $dbklist = get_differential_backup_file_list($opts->{dumpdir}, basename( $archive_path ));
++                    $dbklist = [ sort { $b->{ctime} <=> $a->{ctime} } @$dbklist ];
 +
-+                   foreach my $df (@$dbklist) {
-+                       my $df_archive_path = $df->{path};
-+                       debugmsg ('info', "delete old differential backup '$df_archive_path'", $logfd);
-+                       PVE::Storage::archive_remove($df_archive_path);
++                    foreach my $df (@$dbklist) {
++                        my $df_archive_path = $df->{path};
++                        debugmsg ('info', "delete old differential backup '$df_archive_path'", $logfd);
++                        PVE::Storage::archive_remove($df_archive_path);
 +                    }
-                }
-            }
-        }
-
+ 		}
+ 	    }
+ 	}
 diff --git a/VZDump/Common.pm b/VZDump/Common.pm
 index 909e3af..1c3abe2 100644
 --- a/usr/share/perl5/PVE/VZDump/Common.pm
