@@ -1,3 +1,5 @@
+> No longer maintained. Use [Proxmox Backup Server instead](https://www.proxmox.com/en/proxmox-backup-server). This provides significantly more elegant and scalable solution.
+
 # Proxmox Patches
 
 Proxmox VE is a complete virtualization management solution for servers. You can virtualize even the most demanding application workloads running on Linux and Windows Servers. Checkout their page: [proxmox.com](http://proxmox.com/products/proxmox-ve).
